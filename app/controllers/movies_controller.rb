@@ -15,6 +15,19 @@ class MoviesController < ApplicationController
     @sort = params[:sort]
     @ratings = params[:ratings]
 
+     # remember settings
+    if @sort.blank? && !session[:sort].blank?
+      @sort = session[:sort]
+      retrieve_sort = 1
+    end
+    if @ratings.blank? && !session[:ratings].blank?
+      @ratings = session[:ratings]
+      retrieve_ratings = 1
+    end
+    if retrieve_sort == 1 || retrieve_ratings == 1
+      flash.keep
+      redirect_to :ratings => @ratings, :sort => @sort and return
+    end
     
     # sort: change header background
     @title_header = 'hilite' if @sort == 'title'
@@ -25,12 +38,15 @@ class MoviesController < ApplicationController
     @all_ratings = Movie.ratings
     if @ratings == nil
       @ratings = Hash.new
-      @all_ratings.each { |d| @ratings[d] =  "1" }
+      @all_ratings.each { |r| @ratings[r] =  "1" }
     end
        
     # list movies
     @movies = Movie.where({rating: @ratings.keys}).order(@sort).all
     
+    # save sessions 
+    session[:sort] = @sort
+    session[:ratings] = @ratings
   end
 
   def edit
