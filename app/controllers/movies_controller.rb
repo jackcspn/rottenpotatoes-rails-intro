@@ -10,10 +10,23 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
+ 
   def index
+    # change header background
     @title_header = 'hilite' if params[:sort] == 'title'
     @release_date_header = 'hilite' if params[:sort] == 'release_date'
-    @movies = Movie.order(params[:sort]).all
+    
+    # rating selection box
+    @all_ratings = Movie.ratings
+    @ratings = params[:ratings]
+    if @ratings == nil
+      @ratings = Hash.new
+      @all_ratings.each { |d| @ratings[d] =  "1" }
+    end
+    
+    # list movies
+    @movies = Movie.where({rating: @ratings.keys}).order(params[:sort]).all
+    
   end
 
   def new
